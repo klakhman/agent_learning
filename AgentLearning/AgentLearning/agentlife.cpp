@@ -73,7 +73,7 @@ void AgentStep(TNeuralNetwork* AgentNetwork, int* EnvironmentVector, TEnvironmen
 		CurrentNeuron = CurrentNeuron->next;
 	}
 	int* distr_output_neurons = new int[OutputResolution]; // Количество выходных нейронов в рамках каждого выходного пула
-	memset(distr_output_neurons, 0, sizeof(int)*EnvironmentResolution);
+	memset(distr_output_neurons, 0, sizeof(int)*OutputResolution);
 	int network_OutputResolution = 0; // Реальное кол-во выходных нейронов в сети
 	while (CurrentNeuron->Type == 2){ // Подсчитываем распределение выходных нейронов
 		++distr_output_neurons[CurrentNeuron->ParentPoolID - EnvironmentResolution - 1];
