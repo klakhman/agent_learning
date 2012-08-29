@@ -61,12 +61,52 @@ void AgentStep(TNeuralNetwork* AgentNetwork, int* EnvironmentVector, TEnvironmen
 {
    int OutputResolution = EnvironmentAims->OutputResolution; // Размерность выходного пространства
    int EnvironmentResolution = EnvironmentAims->EnvironmentResolution; // Размерность среды
-   //double CurrentNetworkOut[OutputResolution];
-   double* CurrentNetworkOut = new double[OutputResolution];
+	//!!! Изменения связанные с представлением входных и выходных пулов
+	// Определение реальных размеров выходного и входного пространства (для случая когда входные и выходные нейроны также представлены пулами)
+	int* distr_input_neurons = new int[EnvironmentResolution]; // Количество входных нейронов в рамках каждого входного пула
+	memset(distr_input_neurons, 0, sizeof(int)*EnvironmentResolution);
+	int network_EnvironmentResolution = 0; // Реальное кол-во входных нейронов в сети
+	TNeuron* CurrentNeuron = AgentNetwork->NetworkStructure;
+	while (CurrentNeuron->Type == 0){ // Подсчитываем распределение входных нейронов
+		++distr_input_neurons[CurrentNeuron->ParentPoolID - 1];
+		++network_EnvironmentResolution;
+		CurrentNeuron = CurrentNeuron->next;
+	}
+	int* distr_output_neurons = new int[OutputResolution]; // Количество выходных нейронов в рамках каждого выходного пула
+	memset(distr_output_neurons, 0, sizeof(int)*EnvironmentResolution);
+	int network_OutputResolution = 0; // Реальное кол-во выходных нейронов в сети
+	while (CurrentNeuron->Type == 2){ // Подсчитываем распределение выходных нейронов
+		++distr_output_neurons[CurrentNeuron->ParentPoolID - EnvironmentResolution - 1];
+		++network_OutputResolution;
+		CurrentNeuron = CurrentNeuron->next;
+	}
+	int* _EnvironmentVector = new int[network_EnvironmentResolution];
+	int CurrentBit = 0;
+	for (int i = 0; i < EnvironmentResolution; ++i)
+		for (int j=0; j < distr_input_neurons[i]; ++j)
+			_EnvironmentVector[CurrentBit++] = EnvironmentVector[i];
+	double* _CurrentNetworkOut = new double[network_OutputResolution];
+	memset(_CurrentNetworkOut, 0, sizeof(double) * network_OutputResolution);
+	//!!!
    if (!NetworkMode) // Если режим одновременный
-      NetworkOutput_standart(AgentNetwork, EnvironmentVector, CurrentNetworkOut); // Определяем текущий выходной вектор нейросети агента
+      NetworkOutput_standart(AgentNetwork, _EnvironmentVector, _CurrentNetworkOut); // Определяем текущий выходной вектор нейросети агента
    else // Если режим синхронный
-      NetworkOutput_synch(AgentNetwork, EnvironmentVector, CurrentNetworkOut);
+      NetworkOutput_synch(AgentNetwork, _EnvironmentVector, _CurrentNetworkOut);
+	
+	double* CurrentNetworkOut = new double[OutputResolution]; 
+	memset(CurrentNetworkOut, 0, sizeof(double) * OutputResolution);
+	//!!!
+	// Считаем среднее выхода каждого выходного пула
+	CurrentBit = 0;
+	for (int i=0; i < OutputResolution; ++i)
+		for (int j=0; j < distr_output_neurons[i]; ++j)
+			CurrentNetworkOut[i] += _CurrentNetworkOut[CurrentBit++] / distr_output_neurons[i];	
+
+	delete []distr_input_neurons;
+	delete []distr_output_neurons;
+	delete []_EnvironmentVector;
+	delete []_CurrentNetworkOut;
+	//!!!
 
    double MaxOutput_1=-1; // Значение первого по величине выхода
    double MaxOutput_2=-1; // Значение второго по величине выхода

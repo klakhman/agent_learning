@@ -27,19 +27,19 @@ void InitFirstGeneration_ModernEvolution(TAgentGenomePopulation* AgentGenomePopu
          if (CurrentPool == NULL) // Если это первый пул
          {
 
-            AgentGenomePopulation->AgentGenome[CurrentAgent]->PoolsStructure = CreateNeuralPool(CurrentPoolNumber + 1, 0, 1, UniformDistribution(-1,1), 0, 1, NULL, NULL, NULL);
+            AgentGenomePopulation->AgentGenome[CurrentAgent]->PoolsStructure = CreateNeuralPool(CurrentPoolNumber + 1, 0, InitialPoolCapacity /*1*/, UniformDistribution(-1,1), 0, 1, NULL, NULL, NULL);
             CurrentPool = AgentGenomePopulation->AgentGenome[CurrentAgent]->PoolsStructure;
          }
          else
          {
-            CurrentPool->next = CreateNeuralPool(CurrentPoolNumber + 1, 0, 1, UniformDistribution(-1,1), 0, 1, NULL, NULL, NULL);
+            CurrentPool->next = CreateNeuralPool(CurrentPoolNumber + 1, 0, InitialPoolCapacity /*1*/, UniformDistribution(-1,1), 0, 1, NULL, NULL, NULL);
             CurrentPool = CurrentPool->next;
          }
 
       // Создаем выходные пулы
       for (CurrentPoolNumber=EnvironmentResolution; CurrentPoolNumber<EnvironmentResolution+OutputResolution; ++CurrentPoolNumber)
       {
-         CurrentPool->next = CreateNeuralPool(CurrentPoolNumber + 1, 2, 1, UniformDistribution(-1,1), 0, 3, NULL, NULL, NULL);
+         CurrentPool->next = CreateNeuralPool(CurrentPoolNumber + 1, 2, InitialPoolCapacity /*1*/, UniformDistribution(-1,1), 0, 3, NULL, NULL, NULL);
          CurrentPool = CurrentPool->next;
       }
 
