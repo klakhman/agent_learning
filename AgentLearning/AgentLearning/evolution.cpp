@@ -210,6 +210,7 @@ void ResultsOutput(TAgentGenomePopulation* AgentGenomePopulation, FILE* hResultF
    //double AveragePureReward = 0;// —редн€€ чиста€ (с учетом) штрафа награда в попул€ции (если используетс€ штраф)
    double AveragePoolsQuantity = 0; // —реднее кол-во нейронов у агента
    double AverageConnectionQuantity = 0; // —реднее кол-во синапсов
+	double AveragePredConnectionQuantity = 0; // —реднее кол-во предикторных св€зей
 
    int BestAgent; // Ћучший агент в попул€ции
 
@@ -233,6 +234,7 @@ void ResultsOutput(TAgentGenomePopulation* AgentGenomePopulation, FILE* hResultF
 
       AveragePoolsQuantity += AgentGenomePopulation->AgentGenome[CurrentAgent]->PoolQuantity;
       AverageConnectionQuantity += AgentGenomePopulation->AgentGenome[CurrentAgent]->ConnectionQuantity;
+		AveragePredConnectionQuantity += AgentGenomePopulation->AgentGenome[CurrentAgent]->PredConnectionQuantity;
    }
 
    AverageReward = AverageReward / AgentGenomePopulation->PopulationAgentQuantity;
@@ -240,6 +242,7 @@ void ResultsOutput(TAgentGenomePopulation* AgentGenomePopulation, FILE* hResultF
       AveragePureReward = AveragePureReward / AgentPopulation->PopulationAgentQuantity;*/
    AveragePoolsQuantity = AveragePoolsQuantity / AgentGenomePopulation->PopulationAgentQuantity;
    AverageConnectionQuantity = AverageConnectionQuantity / AgentGenomePopulation->PopulationAgentQuantity;
+	AveragePredConnectionQuantity /= AgentGenomePopulation->PopulationAgentQuantity;
 
    // «аписываем в файл результатов
    fprintf(hResultFile,"%i\t", EvolutionStep);
@@ -266,7 +269,7 @@ void ResultsOutput(TAgentGenomePopulation* AgentGenomePopulation, FILE* hResultF
    fprintf(hHistogramFile, "\n");
 
    //!
-   printf("%i:\t%.3f\t%.3f\n", EvolutionStep, AverageReward, MaxReward);
+	printf("%i:\t%.3f\t%.3f\t\tPools: %.2f\t%Connections: %.2f\t%PredConnections: %.2f\n", EvolutionStep, AverageReward, MaxReward, AveragePoolsQuantity, AverageConnectionQuantity, AveragePredConnectionQuantity);
 }
 
 void Evolution(TModeSettings* ModeSettings, TTimeSettings* TimeSettings, TMutationSettings* MutationSettings, TFilenameSettings* FilenameSettings, TRunSettings* RunSettings, TPrimarySystemogenesisSettings* PrimarySystemogenesisSettings, TLearningSettings* LearningSettings, double EnVariableProbability)
