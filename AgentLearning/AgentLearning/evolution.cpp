@@ -214,7 +214,7 @@ void ResultsOutput(TAgentGenomePopulation* AgentGenomePopulation, FILE* hResultF
    int BestAgent; // Лучший агент в популяции
 
    // Вычисляем все показатели
-   for (int CurrentAgent=0; CurrentAgent<AgentGenomePopulation->PopulationAgentQuantity; CurrentAgent++)
+   for (int CurrentAgent=0; CurrentAgent<AgentGenomePopulation->PopulationAgentQuantity; ++CurrentAgent)
    {
       if (AgentGenomePopulation->AgentGenome[CurrentAgent]->Reward > MaxReward)
       {
