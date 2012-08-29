@@ -34,6 +34,7 @@ void FillSettingsFromFile(const char SettingsFilename[], TTimeSettings* TimeSett
       if (!strcmp(tmp_str,"NetworkMode")) { fscanf(hSettingsFile, "%s", tmp_str); ModeSettings->NetworkMode = atoi(tmp_str); }
       if (!strcmp(tmp_str,"EvolutionMode")) { fscanf(hSettingsFile, "%s", tmp_str); ModeSettings->EvolutionMode = atoi(tmp_str); }
       if (!strcmp(tmp_str,"RewardMode")) { fscanf(hSettingsFile, "%s", tmp_str); ModeSettings->RewardMode = atoi(tmp_str); }
+		if (!strcmp(tmp_str,"LearningMode")) { fscanf(hSettingsFile, "%s", tmp_str); ModeSettings->LearningMode = atoi(tmp_str); }
 
       // Общие параметры запуска
       if (!strcmp(tmp_str,"FirstEnvironmentNumber")) { fscanf(hSettingsFile, "%s", tmp_str); GeneralRunSettings->FirstEnvironmentNumber = atoi(tmp_str); }

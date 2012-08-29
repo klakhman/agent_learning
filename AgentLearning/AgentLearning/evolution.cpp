@@ -288,7 +288,7 @@ void Evolution(TModeSettings* ModeSettings, TTimeSettings* TimeSettings, TMutati
    if (!ModeSettings->EvolutionMode) // Если используется алгоритм NEAT
       {}//InitFirstGeneration_NEAT(&AgentGenomePopulation, EnvironmentAims.EnvironmentResolution, EnvironmentAims.OutputResolution);
    else // Если используется модифицированный эволюционный алгоритм
-      InitFirstGeneration_ModernEvolution(&AgentGenomePopulation, EnvironmentAims.EnvironmentResolution, EnvironmentAims.OutputResolution, PrimarySystemogenesisSettings->InitialPoolCapacity);
+		InitFirstGeneration_ModernEvolution(&AgentGenomePopulation, EnvironmentAims.EnvironmentResolution, EnvironmentAims.OutputResolution, ModeSettings->LearningMode ? PrimarySystemogenesisSettings->InitialPoolCapacity : 1);
 
    double BestAverageReward = 0; // Средняя награда лучшей популяции
    double CurrentConInnovationNumber = (double) AgentGenomePopulation.AgentGenome[0]->ConnectionQuantity;
@@ -299,8 +299,10 @@ void Evolution(TModeSettings* ModeSettings, TTimeSettings* TimeSettings, TMutati
 	   for (int AgentNumber=0; AgentNumber<AgentGenomePopulation.PopulationAgentQuantity; ++AgentNumber) // Прогоняем жизнь всех агентов
       {
          AgentPopulation.Agent[AgentNumber] = CreateNeuralNetwork();
-         AgentPrimarySystemogenesis(AgentPopulation.Agent[AgentNumber], AgentGenomePopulation.AgentGenome[AgentNumber], PrimarySystemogenesisSettings);
-         //AgentLinearPrimarySystemogenesis(AgentPopulation.Agent[AgentNumber], AgentGenomePopulation.AgentGenome[AgentNumber]);
+         if (ModeSettings->LearningMode) 
+				AgentPrimarySystemogenesis(AgentPopulation.Agent[AgentNumber], AgentGenomePopulation.AgentGenome[AgentNumber], PrimarySystemogenesisSettings);
+         else
+				AgentLinearPrimarySystemogenesis(AgentPopulation.Agent[AgentNumber], AgentGenomePopulation.AgentGenome[AgentNumber]);
          //!!
          /*char AgentDotFile[255];
          sprintf(AgentDotFile, "C:/EvolutionImages/Agent%i-%i.dot", EvolutionStep, AgentNumber);
@@ -311,7 +313,7 @@ void Evolution(TModeSettings* ModeSettings, TTimeSettings* TimeSettings, TMutati
          printf("\nD\n");
          char c = getchar();*/
          //!!
-         AgentLife(AgentPopulation.Agent[AgentNumber], &EnvironmentAims, TimeSettings->RewardRecoveryTime, EnVariableProbability, TimeSettings->AgentLifetime,  ModeSettings->NetworkMode, true, LearningSettings);
+			AgentLife(AgentPopulation.Agent[AgentNumber], &EnvironmentAims, TimeSettings->RewardRecoveryTime, EnVariableProbability, TimeSettings->AgentLifetime,  ModeSettings->NetworkMode, ModeSettings->LearningMode, LearningSettings);
          AgentGenomePopulation.AgentGenome[AgentNumber]->Reward = AgentPopulation.Agent[AgentNumber]->Reward;
       }
       //Вывод результатов
