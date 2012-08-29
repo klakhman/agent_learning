@@ -80,7 +80,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AgentLearning.cpp" />
     <ClCompile Include="agentlife.cpp" />
     <ClCompile Include="analysis.cpp" />
     <ClCompile Include="check_data_integrity.cpp" />

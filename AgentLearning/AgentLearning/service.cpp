@@ -133,9 +133,9 @@ double UniformDistribution(double A, double B, bool include_start/* = true*/, bo
    //return ((rand()%999 + 1)/1000.0) * (B - A) + A; // куски интервала в этой версии не включаются
    const int scale = 10000;
    // Модифицируем интервал, чтобы удовлетворить условиям включения или не включения концов
-   A += (!include_start) * 1.0F/static_cast<double>(scale);
-   B -= (!include_end) * 1.0F/static_cast<double>(scale);
-   return (UniformDiscreteDistribution(0, scale)/static_cast<double>(scale)) * (B - A) + A;
+   //A += (!include_start) * 1.0F/static_cast<double>(scale);
+   //B -= (!include_end) * 1.0F/static_cast<double>(scale);
+   return (UniformDiscreteDistribution(0 + 1 * (!include_start), scale - 1 * (!include_end) )/static_cast<double>(scale)) * (B - A) + A;
 }
 
 // Функция генерации псевдослучайного равномерно распределенного дискретной величины (куски интервалов включаются)

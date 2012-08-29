@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AgentLearning.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="agentlife.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

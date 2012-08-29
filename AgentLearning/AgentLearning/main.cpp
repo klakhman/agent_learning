@@ -19,7 +19,7 @@
 //#include "windows.h"
 int count;
 void out_of_memory(){
-	printf("\nOUT OF MEMORY\n");
+	printf("\nnew() error : not enough memory\n");
 	exit(1);
 }
 
