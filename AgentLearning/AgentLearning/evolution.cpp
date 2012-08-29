@@ -269,7 +269,7 @@ void ResultsOutput(TAgentGenomePopulation* AgentGenomePopulation, FILE* hResultF
    fprintf(hHistogramFile, "\n");
 
    //!
-	printf("%i:\t%.3f\t%.3f\t\tPools: %.2f\t%Connections: %.2f\t%PredConnections: %.2f\n", EvolutionStep, AverageReward, MaxReward, AveragePoolsQuantity, AverageConnectionQuantity, AveragePredConnectionQuantity);
+	printf("%i:\t%.3f\t%.3f\tPools: %.2f\tCon: %.2f\tPredCon: %.2f\n", EvolutionStep, AverageReward, MaxReward, AveragePoolsQuantity, AverageConnectionQuantity, AveragePredConnectionQuantity);
 }
 
 void Evolution(TModeSettings* ModeSettings, TTimeSettings* TimeSettings, TMutationSettings* MutationSettings, TFilenameSettings* FilenameSettings, TRunSettings* RunSettings, TPrimarySystemogenesisSettings* PrimarySystemogenesisSettings, TLearningSettings* LearningSettings, double EnVariableProbability)
