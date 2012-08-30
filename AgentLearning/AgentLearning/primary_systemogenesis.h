@@ -2,7 +2,7 @@
 #define PRIMARY_SYSTEMOGENESIS_H_INCLUDED
 
 // Построение ПОЛНОЙ (без отбора) первичной нейронной сети из генотипа (структуры пулов)
-void BuildPrimaryNetwork(TNeuralNetwork* PrimaryNetwork, TPoolNetwork* PoolNetwork, double DevelopSynapseProbability, double DevelopPredConnectionProbability);
+void BuildPrimaryNetwork(TNeuralNetwork* PrimaryNetwork, TPoolNetwork* PoolNetwork);
 
 // Функция отбора активирующихся нейронов
 void NeuronsSelection(TNeuralNetwork* PrimaryNetwork, double* InitialSummaryPotential, int ActivationNeuronsQuantity);

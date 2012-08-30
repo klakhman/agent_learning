@@ -12,10 +12,10 @@ TPoolNetwork* CreatePoolNetwork();
 TPoolNetwork* DeletePoolNetwork(TPoolNetwork* PoolNetwork);
 
 // Функция создания и заполнения новой связи между пулами
-TPoolConnection* CreatePoolConnection(int ID, double WeightMean, double WeightVariance, bool Enabled, double InnNumber, int DisStep, TNeuralPool* PrePool, TNeuralPool* PostPool, TPoolConnection* next = NULL);
+TPoolConnection* CreatePoolConnection(int ID, double WeightMean, double WeightVariance, bool Enabled, double InnNumber, int DisStep, double DevelopSynapseProb, TNeuralPool* PrePool, TNeuralPool* PostPool, TPoolConnection* next = NULL);
 
 // Функция создание и заполнения предикторной связи между пулами
-TPoolPredConnection* CreatePoolPredConnection(int ID, bool Enabled, double InnNumber, int DisStep, TNeuralPool* PrePool, TNeuralPool* PostPool, TPoolPredConnection* next = NULL);
+TPoolPredConnection* CreatePoolPredConnection(int ID, bool Enabled, double InnNumber, int DisStep, double DevelopPredConProb, TNeuralPool* PrePool, TNeuralPool* PostPool, TPoolPredConnection* next = NULL);
 
 // Функция создания и заполнения нового нейронального пула
 TNeuralPool* CreateNeuralPool(int ID, int Type, int Capacity, double BiasMean, double BiasVariance, int Layer, TPoolConnection* ConnectednessSet = NULL, TPoolPredConnection* PredConnectednessSet = NULL, TNeuralPool* next = NULL);

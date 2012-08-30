@@ -24,7 +24,7 @@ void SerialTasks(int argc, char **argv)
    int ProgramMode = 0;
    bool NoEnVariableCheck = 0;
    // Сначала заполняем все настройки из файла argv[1]
-   FillSettingsFromFile("C:/Runs/settings_learning.ini", &TimeSettings, &MutationSettings, &ModeSettings, &DirectorySettings, &GeneralRunSettings, &PrimarySystemogenesisSettings, &LearningSettings, &EnVariableProbability);
+   FillSettingsFromFile("C:/Runs/settings_learning_adapt.ini", &TimeSettings, &MutationSettings, &ModeSettings, &DirectorySettings, &GeneralRunSettings, &PrimarySystemogenesisSettings, &LearningSettings, &EnVariableProbability);
    // Заполняем настройки из командной строки (это только для родительского процесса)
    //FillCommandParametrs(argc, argv, &GeneralRunSettings, &ModeSettings, &(MutationSettings.EnConProb), &(MutationSettings.DisConProb), &EnVariableProbability, &ProgramMode, &NoEnVariableCheck);
 	printf("%.10f\n", EnVariableProbability);

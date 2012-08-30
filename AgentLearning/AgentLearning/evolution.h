@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 // Процедура генерации стартовой популяции для модернизированного эвлюционного алгоритма
-void InitFirstGeneration_ModernEvolution(TAgentGenomePopulation* AgentPopulation, int AgentPopulationQuantity, int EnvironmentResolution, int OutputResolution, int InitialPoolCapacity);
+void InitFirstGeneration_ModernEvolution(TAgentGenomePopulation* AgentGenomePopulation, int EnvironmentResolution, int OutputResolution, int InitialPoolCapacity, double InitialDevelopSynapseProbability);
 
 // Процедура генерации стартовой популяции для NEAT
 //void InitFirstGeneration_NEAT(TNetwork* AgentPopulation, int AgentPopulationQuantity, int EnvironmentResolution, int OutputResolution);

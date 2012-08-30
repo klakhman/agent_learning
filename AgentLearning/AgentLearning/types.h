@@ -21,6 +21,7 @@ struct TPoolConnection
    bool Enabled; // Признак экспресии связи (включен/выключен)
    double InnNumber; // Номер инновации связи
    int DisStep; // Номер популяции, когда эта связь была выключена
+	double DevelopSynapseProb; // Вероятность образования синапса по этой связи
    struct TNeuralPool* PrePool; // Ссылка на "пресинаптический" пул
    struct TNeuralPool* PostPool; // Ссылка на "постсинаптический" пул
    struct TPoolConnection* next;
@@ -33,6 +34,7 @@ struct TPoolPredConnection
    bool Enabled; // Признак экспресии предикторной связи
    double InnNumber; // Номер инновации предикторной связи
    int DisStep; // Номер популяции, когда эта предикторная связь была выключена
+	double DevelopPredConProb; // Вероятность образования предикторной связи по этой связи
    struct TNeuralPool* PrePool; // Ссылка на "пресинаптический" пул
    struct TNeuralPool* PostPool; // Ссылка на "постсинаптический" пул
    struct TPoolPredConnection* next;
@@ -172,6 +174,9 @@ struct TMutationSettings
    int PoolStandartAmount; // Стандартный размер сети в кол-ве пулов(для использования в процедуре дупликации нейрона)
    int ConnectionStandartAmount;
    int PenaltyRewardLimit; // Стандартный размер сети (в кол-ве включенных связей), после которого начинается начисление штрафа за размер (для использования в режиме со штрафной функцией)
+	double MutDevelopConProbProb; // Вероятность мутации вероятности образования связи связи
+	double MutDevelopConProbDisp; // Дисперсия мутации вероятности образования связи связи
+
 };
 
 // Структура "Временные параметры"
@@ -235,8 +240,8 @@ struct TFilenameSettings
 struct TPrimarySystemogenesisSettings
 {
    int InitialPoolCapacity; // Изначальная размерность каждого пула
-   double DevelopSynapseProbability; // Вероятность образования синапса связи в процессе построения первичной сети
-   double DevelopPredConnectionProbability; // Вероятность образования предикторной связи в процессе построения первичной сети
+   double InitialDevelopSynapseProbability; // Вероятность образования синапса связи в процессе построения первичной сети
+   double InitialDevelopPredConnectionProbability; // Вероятность образования предикторной связи в процессе построения первичной сети
    int PrimarySystemogenesisTime; // Время (в тактах), в течение которого происходит первичный системогенез
    double SpontaneousActivityProb; // Вероятность спонтанной активации нейрона
    double ActiveNeuronsPercent; // Процент наиболее активных нейронов, которые становятся активными после ПС

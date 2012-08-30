@@ -38,7 +38,7 @@ TPoolNetwork* DeletePoolNetwork(TPoolNetwork* PoolNetwork)
 }
 
 // Функция создания и заполнения новой связи между пулами
-TPoolConnection* CreatePoolConnection(int ID, double WeightMean, double WeightVariance, bool Enabled, double InnNumber, int DisStep, TNeuralPool* PrePool, TNeuralPool* PostPool, TPoolConnection* next /*=NULL*/)
+TPoolConnection* CreatePoolConnection(int ID, double WeightMean, double WeightVariance, bool Enabled, double InnNumber, int DisStep, double DevelopSynapseProb, TNeuralPool* PrePool, TNeuralPool* PostPool, TPoolConnection* next /*=NULL*/)
 {
    TPoolConnection* NewPoolConnection = new TPoolConnection;
 
@@ -48,6 +48,7 @@ TPoolConnection* CreatePoolConnection(int ID, double WeightMean, double WeightVa
    NewPoolConnection->Enabled = Enabled;
    NewPoolConnection->InnNumber = InnNumber;
    NewPoolConnection->DisStep = DisStep;
+	NewPoolConnection->DevelopSynapseProb = DevelopSynapseProb;
    NewPoolConnection->PrePool = PrePool;
    NewPoolConnection->PostPool = PostPool;
    NewPoolConnection->next=next;
@@ -56,7 +57,7 @@ TPoolConnection* CreatePoolConnection(int ID, double WeightMean, double WeightVa
 }
 
 // Функция создание и заполнения предикторной связи между пулами
-TPoolPredConnection* CreatePoolPredConnection(int ID, bool Enabled, double InnNumber, int DisStep, TNeuralPool* PrePool, TNeuralPool* PostPool, TPoolPredConnection* next /*=NULL*/)
+TPoolPredConnection* CreatePoolPredConnection(int ID, bool Enabled, double InnNumber, int DisStep, double DevelopPredConProb, TNeuralPool* PrePool, TNeuralPool* PostPool, TPoolPredConnection* next /*=NULL*/)
 {
    TPoolPredConnection* NewPoolPredConnection = new TPoolPredConnection;
 
@@ -64,6 +65,7 @@ TPoolPredConnection* CreatePoolPredConnection(int ID, bool Enabled, double InnNu
    NewPoolPredConnection->Enabled = Enabled;
    NewPoolPredConnection->InnNumber = InnNumber;
    NewPoolPredConnection->DisStep = DisStep;
+	NewPoolPredConnection->DevelopPredConProb = DevelopPredConProb;
    NewPoolPredConnection->PrePool = PrePool;
    NewPoolPredConnection->PostPool = PostPool;
    NewPoolPredConnection->next = next;
@@ -398,12 +400,12 @@ void CopyPoolNetwork(TPoolNetwork* NewPoolNetwork, TPoolNetwork* ParentPoolNetwo
          //Создаем новый синапс
          if (CurNewConnection == NULL) // Если это первая связь для пула принимающей сети
          {
-            CurNewPool->ConnectednessSet = CreatePoolConnection(CurParentConnection->ID, CurParentConnection->WeightMean, CurParentConnection->WeightVariance, CurParentConnection->Enabled, CurParentConnection->InnNumber, CurParentConnection->DisStep, CurPrePool, CurNewPool, NULL);
+				CurNewPool->ConnectednessSet = CreatePoolConnection(CurParentConnection->ID, CurParentConnection->WeightMean, CurParentConnection->WeightVariance, CurParentConnection->Enabled, CurParentConnection->InnNumber, CurParentConnection->DisStep, CurParentConnection->DevelopSynapseProb, CurPrePool, CurNewPool, NULL);
             CurNewConnection = CurNewPool->ConnectednessSet;
          }
          else
          {
-            CurNewConnection->next = CreatePoolConnection(CurParentConnection->ID, CurParentConnection->WeightMean, CurParentConnection->WeightVariance, CurParentConnection->Enabled, CurParentConnection->InnNumber, CurParentConnection->DisStep, CurPrePool, CurNewPool, NULL);
+            CurNewConnection->next = CreatePoolConnection(CurParentConnection->ID, CurParentConnection->WeightMean, CurParentConnection->WeightVariance, CurParentConnection->Enabled, CurParentConnection->InnNumber, CurParentConnection->DisStep, CurParentConnection->DevelopSynapseProb, CurPrePool, CurNewPool, NULL);
             CurNewConnection = CurNewConnection->next;
          }
          CurParentConnection = CurParentConnection->next;
@@ -418,12 +420,12 @@ void CopyPoolNetwork(TPoolNetwork* NewPoolNetwork, TPoolNetwork* ParentPoolNetwo
          //Создаем новую пред. связь
          if (CurNewPredConnection == NULL) // Если это первая пред. связь для пула принимающей сети
          {
-            CurNewPool->PredConnectednessSet = CreatePoolPredConnection(CurParentPredConnection->ID, CurParentPredConnection->Enabled, CurParentPredConnection->InnNumber, CurParentPredConnection->DisStep, CurPrePool, CurNewPool, NULL);
+				CurNewPool->PredConnectednessSet = CreatePoolPredConnection(CurParentPredConnection->ID, CurParentPredConnection->Enabled, CurParentPredConnection->InnNumber, CurParentPredConnection->DisStep, CurParentPredConnection->DevelopPredConProb, CurPrePool, CurNewPool, NULL);
             CurNewPredConnection = CurNewPool->PredConnectednessSet;
          }
          else
          {
-            CurNewPredConnection->next = CreatePoolPredConnection(CurParentPredConnection->ID, CurParentPredConnection->Enabled, CurParentPredConnection->InnNumber, CurParentPredConnection->DisStep, CurPrePool, CurNewPool, NULL);
+            CurNewPredConnection->next = CreatePoolPredConnection(CurParentPredConnection->ID, CurParentPredConnection->Enabled, CurParentPredConnection->InnNumber, CurParentPredConnection->DisStep, CurParentPredConnection->DevelopPredConProb, CurPrePool, CurNewPool, NULL);
             CurNewPredConnection = CurNewPredConnection->next;
          }
          CurParentPredConnection = CurParentPredConnection->next;
@@ -1088,13 +1090,15 @@ void FillNextPoolNetwork(TPoolNetwork* PoolNetwork, FILE* hNetworkFile, int Envi
       bool ConnectionEnabled = atoi(StrFromFile);
       fscanf(hNetworkFile, "%s", StrFromFile); // Считываем поколение выключения
       int ConnectionDisStep = atoi(StrFromFile);
+		fscanf(hNetworkFile, "%s", StrFromFile); // Считываем вероятность развития связи
+      double DevelopSynapseProb = atof(StrFromFile);
       fscanf(hNetworkFile, "%s", StrFromFile); // Считываем номер инновации
       double ConnectionInnNumber = atof(StrFromFile);
 
       if (CurrentPoolConnection != NULL) // Если уже есть входящие синапсы у нейрона
-         CurrentPoolConnection->next = CreatePoolConnection(PoolNetwork->ConnectionQuantity, WeightMean, WeightDisp, ConnectionEnabled, ConnectionInnNumber, ConnectionDisStep, PrePool, CurrentPool, NULL);
+			CurrentPoolConnection->next = CreatePoolConnection(PoolNetwork->ConnectionQuantity, WeightMean, WeightDisp, ConnectionEnabled, ConnectionInnNumber, ConnectionDisStep, DevelopSynapseProb, PrePool, CurrentPool, NULL);
       else
-         CurrentPool->ConnectednessSet = CreatePoolConnection(PoolNetwork->ConnectionQuantity, WeightMean, WeightDisp, ConnectionEnabled, ConnectionInnNumber, ConnectionDisStep, PrePool, CurrentPool, NULL);
+			CurrentPool->ConnectednessSet = CreatePoolConnection(PoolNetwork->ConnectionQuantity, WeightMean, WeightDisp, ConnectionEnabled, ConnectionInnNumber, ConnectionDisStep, DevelopSynapseProb, PrePool, CurrentPool, NULL);
 
       fscanf(hNetworkFile, "%s", StrFromFile);
    }
@@ -1119,13 +1123,15 @@ void FillNextPoolNetwork(TPoolNetwork* PoolNetwork, FILE* hNetworkFile, int Envi
       bool PredConnectionEnabled = atoi(StrFromFile);
       fscanf(hNetworkFile, "%s", StrFromFile); // Считываем поколение выключения
       int PredConnectionDisStep = atoi(StrFromFile);
+		fscanf(hNetworkFile, "%s", StrFromFile); // Считываем вероятность развития связи
+      double DevelopPredConProb = atof(StrFromFile);
       fscanf(hNetworkFile, "%s", StrFromFile); // Считываем номер инновации
       double PredConnectionInnNumber = atof(StrFromFile);
 
       if (CurrentPoolPredConnection != NULL) // Если уже есть входящие предикторные связи у нейрона
-         CurrentPoolPredConnection->next = CreatePoolPredConnection(PoolNetwork->PredConnectionQuantity, PredConnectionEnabled, PredConnectionInnNumber, PredConnectionDisStep, PrePool, CurrentPool, NULL);
+			CurrentPoolPredConnection->next = CreatePoolPredConnection(PoolNetwork->PredConnectionQuantity, PredConnectionEnabled, PredConnectionInnNumber, PredConnectionDisStep, DevelopPredConProb, PrePool, CurrentPool, NULL);
       else
-         CurrentPool->PredConnectednessSet = CreatePoolPredConnection(PoolNetwork->PredConnectionQuantity, PredConnectionEnabled, PredConnectionInnNumber, PredConnectionDisStep, PrePool, CurrentPool, NULL);
+			CurrentPool->PredConnectednessSet = CreatePoolPredConnection(PoolNetwork->PredConnectionQuantity, PredConnectionEnabled, PredConnectionInnNumber, PredConnectionDisStep, DevelopPredConProb, PrePool, CurrentPool, NULL);
 
       fscanf(hNetworkFile, "%s", StrFromFile);
    }
@@ -1176,6 +1182,7 @@ void SkipPoolNetworkInFile(FILE* hNetworkFile, int NetworkMode)
       fscanf(hNetworkFile, "%s", StrFromFile); // Считываем дисперсию веса
       fscanf(hNetworkFile, "%s", StrFromFile); // Считываем признак экспрессии
       fscanf(hNetworkFile, "%s", StrFromFile); // Такт выключения
+		fscanf(hNetworkFile, "%s", StrFromFile); // Считываем вероятность развития связи
       fscanf(hNetworkFile, "%s", StrFromFile); // Номер инновации
 
       fscanf(hNetworkFile, "%s", StrFromFile); // ID пресинаптического пула
@@ -1187,6 +1194,7 @@ void SkipPoolNetworkInFile(FILE* hNetworkFile, int NetworkMode)
    {
       fscanf(hNetworkFile, "%s", StrFromFile); // Считываем признак экспрессии
       fscanf(hNetworkFile, "%s", StrFromFile); // Такт выключения
+		fscanf(hNetworkFile, "%s", StrFromFile); // Считываем вероятность развития связи
       fscanf(hNetworkFile, "%s", StrFromFile); // Номер инновации
 
       fscanf(hNetworkFile, "%s", StrFromFile); // ID пресинаптического пула
@@ -1272,7 +1280,7 @@ void RecordPoolNetwork(TPoolNetwork* PoolNetwork, int NetworkNumber, FILE* hNetw
       TPoolConnection* CurrentPoolConnection = CurrentPool->ConnectednessSet;
       while (CurrentPoolConnection != NULL) // Проходимся по всем связям
       {
-         fprintf(hNetworkFile, "%i\t%i\t%.4f\t%.4f\t%i\t%i\t%.1f\n", CurrentPoolConnection->PrePool->ID, CurrentPoolConnection->PostPool->ID, CurrentPoolConnection->WeightMean, CurrentPoolConnection->WeightVariance, CurrentPoolConnection->Enabled, CurrentPoolConnection->DisStep, CurrentPoolConnection->InnNumber);
+			fprintf(hNetworkFile, "%i\t%i\t%.4f\t%.4f\t%i\t%i\t%.4f\t%.1f\n", CurrentPoolConnection->PrePool->ID, CurrentPoolConnection->PostPool->ID, CurrentPoolConnection->WeightMean, CurrentPoolConnection->WeightVariance, CurrentPoolConnection->Enabled, CurrentPoolConnection->DisStep, CurrentPoolConnection->DevelopSynapseProb, CurrentPoolConnection->InnNumber);
          CurrentPoolConnection = CurrentPoolConnection->next;
       }
       CurrentPool = CurrentPool->next;
@@ -1286,7 +1294,7 @@ void RecordPoolNetwork(TPoolNetwork* PoolNetwork, int NetworkNumber, FILE* hNetw
       TPoolPredConnection* CurrentPoolPredConnection = CurrentPool->PredConnectednessSet;
       while (CurrentPoolPredConnection != NULL) // Проходимся по всем предикторным связям
       {
-         fprintf(hNetworkFile, "%i\t%i\t%i\t%i\t%.1f\n", CurrentPoolPredConnection->PrePool->ID, CurrentPoolPredConnection->PostPool->ID, CurrentPoolPredConnection->Enabled, CurrentPoolPredConnection->DisStep, CurrentPoolPredConnection->InnNumber);
+			fprintf(hNetworkFile, "%i\t%i\t%i\t%i\t%.4f\t%.1f\n", CurrentPoolPredConnection->PrePool->ID, CurrentPoolPredConnection->PostPool->ID, CurrentPoolPredConnection->Enabled, CurrentPoolPredConnection->DisStep,CurrentPoolPredConnection->DevelopPredConProb, CurrentPoolPredConnection->InnNumber);
          CurrentPoolPredConnection = CurrentPoolPredConnection->next;
       }
       CurrentPool = CurrentPool->next;

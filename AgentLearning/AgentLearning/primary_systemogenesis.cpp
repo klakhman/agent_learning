@@ -8,7 +8,7 @@
 #include "primary_systemogenesis.h"
 
 // Построение ПОЛНОЙ (без отбора) первичной нейронной сети из генотипа (структуры пулов)
-void BuildPrimaryNetwork(TNeuralNetwork* PrimaryNetwork, TPoolNetwork* PoolNetwork, double DevelopSynapseProbability, double DevelopPredConnectionProbability)
+void BuildPrimaryNetwork(TNeuralNetwork* PrimaryNetwork, TPoolNetwork* PoolNetwork)
 {
    int NeuronsQuantity = 0; // Количество нейронов в первичной сети
    TNeuralPool* CurrentPool= PoolNetwork->PoolsStructure; // Ссылка на текущий пул
@@ -88,7 +88,7 @@ void BuildPrimaryNetwork(TNeuralNetwork* PrimaryNetwork, TPoolNetwork* PoolNetwo
             if (CurrentConnection->Enabled)
                   for (int CurrentPreNeuronNumber = 0; CurrentPreNeuronNumber < CurrentConnection->PrePool->Capacity; ++CurrentPreNeuronNumber )
                   {
-                     if (UniformDistribution(0, 1) <= DevelopSynapseProbability)
+							if (UniformDistribution(0, 1) < CurrentConnection->DevelopSynapseProb)
                      {
                         if (CurrentSynapse == NULL) // Если нет еще ни одного синапса у текущего нейрона
                         {
@@ -135,7 +135,7 @@ void BuildPrimaryNetwork(TNeuralNetwork* PrimaryNetwork, TPoolNetwork* PoolNetwo
             if (CurrentPredConnection->Enabled)
                for (int CurrentPreNeuronNumber = 0; CurrentPreNeuronNumber < CurrentPredConnection->PrePool->Capacity; ++CurrentPreNeuronNumber)
                {
-                  if (UniformDistribution(0, 1) <= DevelopPredConnectionProbability)
+						if (UniformDistribution(0, 1) < CurrentPredConnection->DevelopPredConProb)
                   {
                      if (CurrentPredSynapse == NULL) // Если нет еще ни одного синапса у текущего нейрона
                      {
@@ -401,7 +401,7 @@ void AgentPrimarySystemogenesis(TNeuralNetwork* PrimaryNetwork, TPoolNetwork* Po
 {
    EraseNeuralNetwork(PrimaryNetwork);
 
-   BuildPrimaryNetwork(PrimaryNetwork, PoolNetwork, PrimarySystemogenesisSettings->DevelopSynapseProbability, PrimarySystemogenesisSettings->DevelopPredConnectionProbability);
+   BuildPrimaryNetwork(PrimaryNetwork, PoolNetwork);
 
    // Массив суммарных потенциалов на нейроне за все время первичного системогенеза
    /*double NeuronsPotential[PrimaryNetwork->NeuronQuantity];

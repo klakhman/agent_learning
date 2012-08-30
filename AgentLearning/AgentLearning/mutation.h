@@ -17,10 +17,10 @@ void MutationEnDisConnection(TPoolNetwork* KidPoolNetwork, double EnConProb, dou
 void MutationEnDisPredConnection(TPoolNetwork* KidPoolNetwork, double EnConProb, double DisConProb, int EvolutionStep);
 
 // Процедура мутации - добавление связи
-void MutationAddConnection(TPoolNetwork* KidPoolNetwork, double AddConnectionProb, bool EvolutionMode, double* CurrentInnovationNumber);
+void MutationAddConnection(TPoolNetwork* KidPoolNetwork, double AddConnectionProb, bool EvolutionMode, double* CurrentInnovationNumber, double InitialDevelopSynapseProb);
 
 // Процедура мутации - добавление предикторной связи связи
-void MutationAddPredConnection(TPoolNetwork* KidPoolNetwork, double AddPredConnectionProb, double* CurrentPredInnovationNumber);
+void MutationAddPredConnection(TPoolNetwork* KidPoolNetwork, double AddPredConnectionProb, double* CurrentPredInnovationNumber, double InitialDevelopPredConProb);
 
 // Процедура мутации - удаление связи
 void MutationDeletePoolConnection(TPoolNetwork* KidNetwork, double DeleteConnectionProb);
@@ -41,7 +41,7 @@ void MutationPoolDuplicate(TPoolNetwork* KidPoolNetwork, double DuplicatePoolPro
 void ComposeOffspringFromParents(TPoolNetwork* KidPoolNetwork, TPoolNetwork* FirstParentNetwork, TPoolNetwork* SecondParentNetwork);
 
 // Процедура генерации одного потомка
-void GenerateOffspring(TPoolNetwork* KidPoolNetwork, TPoolNetwork* FirstParentNetwork, TPoolNetwork* SecondParentNetwork, int EvolutionStep, TMutationSettings* Settings, bool EvolutionMode, double* CurrentInnovationNumber, double* CurrentPredInnovationNumber);
+void GenerateOffspring(TPoolNetwork* KidPoolNetwork, TPoolNetwork* FirstParentNetwork, TPoolNetwork* SecondParentNetwork, int EvolutionStep, TMutationSettings* Settings, bool EvolutionMode, double* CurrentInnovationNumber, double* CurrentPredInnovationNumber, double InitialDevelopSynapseProb, double InitialDevelopPredConProb);
 
 //Процедура получения номера агента, используемая в рулеточном алгоритме
 int RouletteWheelSelection(double* PopulationFitness, int PopulationQuantity);
@@ -50,7 +50,7 @@ int RouletteWheelSelection(double* PopulationFitness, int PopulationQuantity);
 double RewardPenalty(TPoolNetwork* PoolNetwork, int PenaltyRewardLimit);
 
 // Процедура генерации нового поколения и замены старого на новое
-void GenerateNextPopulation(TAgentGenomePopulation* AgentGenomePopulation, TMutationSettings* MutationSettings, int EvolutionStep, bool EvolutionMode, bool RewardMode, double* CurrentInnovationNumber, double* CurrentPredInnovationNumber);
+void GenerateNextPopulation(TAgentGenomePopulation* AgentGenomePopulation, TMutationSettings* MutationSettings, int EvolutionStep, bool EvolutionMode, bool RewardMode, double* CurrentInnovationNumber, double* CurrentPredInnovationNumber, double InitialDevelopSynapseProb, double InitialDevelopPredConProb);
 
 #endif // MUTATION_H_INCLUDED
 

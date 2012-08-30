@@ -16,7 +16,7 @@
 extern const int HistogramCount;
 
 // Процедура генерации стартовой популяции для модернизированного эвлюционного алгоритма
-void InitFirstGeneration_ModernEvolution(TAgentGenomePopulation* AgentGenomePopulation, int EnvironmentResolution, int OutputResolution, int InitialPoolCapacity)
+void InitFirstGeneration_ModernEvolution(TAgentGenomePopulation* AgentGenomePopulation, int EnvironmentResolution, int OutputResolution, int InitialPoolCapacity, double InitialDevelopSynapseProbability)
 {
    for (int CurrentAgent=0; CurrentAgent<AgentGenomePopulation->PopulationAgentQuantity; CurrentAgent++) // Создаем популяцию
    {
@@ -54,7 +54,7 @@ void InitFirstGeneration_ModernEvolution(TAgentGenomePopulation* AgentGenomePopu
       // Заполняем входящие связи выходных пулов от вставочного пула
       for (int CurrentConnectionNumber=0; CurrentConnectionNumber<OutputResolution; ++CurrentConnectionNumber)
       {
-         CurrentPool_2->ConnectednessSet = CreatePoolConnection(CurrentConnectionNumber + 1, UniformDistribution(-1,1), 0, 1, static_cast<double>(CurrentConnectionNumber + 1), 0, CurrentPool, CurrentPool_2, NULL);
+			CurrentPool_2->ConnectednessSet = CreatePoolConnection(CurrentConnectionNumber + 1, UniformDistribution(-1,1), 0, 1, static_cast<double>(CurrentConnectionNumber + 1), 0, InitialDevelopSynapseProbability, CurrentPool, CurrentPool_2, NULL);
          CurrentPool_2 = CurrentPool_2->next;
       }
 
@@ -64,13 +64,13 @@ void InitFirstGeneration_ModernEvolution(TAgentGenomePopulation* AgentGenomePopu
       for (int CurrentConnectionNumber=OutputResolution; CurrentConnectionNumber<OutputResolution+EnvironmentResolution; ++CurrentConnectionNumber)
          if (CurrentConnection == NULL) // Если это первая входящая связь у вставочного пула
          {
-            CurrentPool->ConnectednessSet = CreatePoolConnection(CurrentConnectionNumber + 1, UniformDistribution(-1,1), 0, 1, static_cast<double>(CurrentConnectionNumber + 1), 0, CurrentPool_2, CurrentPool, NULL);
+				CurrentPool->ConnectednessSet = CreatePoolConnection(CurrentConnectionNumber + 1, UniformDistribution(-1,1), 0, 1, static_cast<double>(CurrentConnectionNumber + 1), 0, InitialDevelopSynapseProbability,CurrentPool_2, CurrentPool, NULL);
             CurrentConnection = CurrentPool->ConnectednessSet;
             CurrentPool_2 = CurrentPool_2->next; // Сдвигаемся на следующий сенсорный пул
          }
          else
          {
-            CurrentConnection->next = CreatePoolConnection(CurrentConnectionNumber + 1, UniformDistribution(-1,1), 0, 1, static_cast<double>(CurrentConnectionNumber + 1), 0, CurrentPool_2, CurrentPool, NULL);
+            CurrentConnection->next = CreatePoolConnection(CurrentConnectionNumber + 1, UniformDistribution(-1,1), 0, 1, static_cast<double>(CurrentConnectionNumber + 1), 0, InitialDevelopSynapseProbability, CurrentPool_2, CurrentPool, NULL);
             CurrentConnection = CurrentConnection->next;
             CurrentPool_2 = CurrentPool_2->next; // Сдвигаемся на следующий сенсорный пул
          }
@@ -288,7 +288,7 @@ void Evolution(TModeSettings* ModeSettings, TTimeSettings* TimeSettings, TMutati
    if (!ModeSettings->EvolutionMode) // Если используется алгоритм NEAT
       {}//InitFirstGeneration_NEAT(&AgentGenomePopulation, EnvironmentAims.EnvironmentResolution, EnvironmentAims.OutputResolution);
    else // Если используется модифицированный эволюционный алгоритм
-		InitFirstGeneration_ModernEvolution(&AgentGenomePopulation, EnvironmentAims.EnvironmentResolution, EnvironmentAims.OutputResolution, ModeSettings->LearningMode ? PrimarySystemogenesisSettings->InitialPoolCapacity : 1);
+		InitFirstGeneration_ModernEvolution(&AgentGenomePopulation, EnvironmentAims.EnvironmentResolution, EnvironmentAims.OutputResolution, ModeSettings->LearningMode ? PrimarySystemogenesisSettings->InitialPoolCapacity : 1, PrimarySystemogenesisSettings->InitialDevelopSynapseProbability);
 
    double BestAverageReward = 0; // Средняя награда лучшей популяции
    double CurrentConInnovationNumber = (double) AgentGenomePopulation.AgentGenome[0]->ConnectionQuantity;
@@ -335,7 +335,7 @@ void Evolution(TModeSettings* ModeSettings, TTimeSettings* TimeSettings, TMutati
       PoolNetwork2Dot(AgentGenomePopulation.AgentGenome[BestAgent], BestGenomeDotFile);
       NeuralNetwork2Dot(AgentPopulation.Agent[BestAgent], BestAgentDotFile);*/
       //!!
-      GenerateNextPopulation(&AgentGenomePopulation, MutationSettings, EvolutionStep, ModeSettings->EvolutionMode, ModeSettings->RewardMode, &CurrentConInnovationNumber, &CurrentPredConInnovationNumber);
+		GenerateNextPopulation(&AgentGenomePopulation, MutationSettings, EvolutionStep, ModeSettings->EvolutionMode, ModeSettings->RewardMode, &CurrentConInnovationNumber, &CurrentPredConInnovationNumber, PrimarySystemogenesisSettings->InitialDevelopSynapseProbability, PrimarySystemogenesisSettings->InitialDevelopSynapseProbability);
 		for (int AgentNumber =0; AgentNumber<AgentPopulation.PopulationAgentQuantity; ++AgentNumber)
          AgentPopulation.Agent[AgentNumber] = DeleteNeuralNetwork(AgentPopulation.Agent[AgentNumber]);
    }

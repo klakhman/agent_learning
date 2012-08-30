@@ -117,6 +117,7 @@ void MutationConWeight(TPoolNetwork* KidPoolNetwork, double MutWeightProbability
       if (UniformDistribution(0,1) < MutWeightProbability)
       {
          CurPool->BiasMean += UniformDistribution(-MutWeightMeanDisp, MutWeightMeanDisp);// Мутируем смещение нейрона
+			// Важно, чтобы дисперсия была не меньше нуля
          CurPool->BiasVariance = abs(CurPool->BiasVariance + UniformDistribution(-MutWeightDispDisp, MutWeightDispDisp));
       }
       //printf("%.2f\n",(rand() % ((int) (2*MutWeightDisp*1000) + 1) - MutWeightDisp*1000)/1000.0);
@@ -126,6 +127,7 @@ void MutationConWeight(TPoolNetwork* KidPoolNetwork, double MutWeightProbability
          if ( (UniformDistribution(0,1) < MutWeightProbability) && (CurConnection->Enabled) ) // Если мутация имеет место быть и связь включена
          {
             CurConnection->WeightMean += UniformDistribution(-MutWeightMeanDisp, MutWeightMeanDisp); //Проводим мутацию
+				// Важно, чтобы дисперсия была не меньше нуля
             CurConnection->WeightVariance = abs(CurConnection->WeightVariance + UniformDistribution(-MutWeightDispDisp, MutWeightDispDisp));
          }
          CurConnection = CurConnection->next;
@@ -193,7 +195,7 @@ void MutationEnDisPredConnection(TPoolNetwork* KidPoolNetwork, double EnConProb,
 }
 
 // Процедура мутации - добавление связи
-void MutationAddConnection(TPoolNetwork* KidPoolNetwork, double AddConnectionProb, bool EvolutionMode, double* CurrentInnovationNumber)
+void MutationAddConnection(TPoolNetwork* KidPoolNetwork, double AddConnectionProb, bool EvolutionMode, double* CurrentInnovationNumber, double InitialDevelopSynapseProb)
 {
    if (UniformDistribution(0, 1) < AddConnectionProb) // Если имеет место мутация
    {
@@ -238,7 +240,7 @@ void MutationAddConnection(TPoolNetwork* KidPoolNetwork, double AddConnectionPro
          if (CurPool->ConnectednessSet==NULL) // Если у постсинаптического пула еще нет входных связей (В текущий момент в переменной текущего пула ссылка на постсинаптический пул)
          {
             // Создаем новую связь
-            CurPool->ConnectednessSet = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, UniformDistribution(-1, 1), 0, 1, ++(*CurrentInnovationNumber), 0, PrePool, CurPool, NULL); //!! Инициализация мат.ожидания [-1;1], дисперсии [-0.1;0.1]
+				CurPool->ConnectednessSet = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, UniformDistribution(-1, 1), 0, 1, ++(*CurrentInnovationNumber), 0, InitialDevelopSynapseProb, PrePool, CurPool, NULL); //!! Инициализация мат.ожидания [-1;1], дисперсии [-0.1;0.1]
             CurConnection = CurPool->ConnectednessSet;
          }
          else
@@ -246,7 +248,7 @@ void MutationAddConnection(TPoolNetwork* KidPoolNetwork, double AddConnectionPro
             CurConnection = CurPool->ConnectednessSet;
             while (CurConnection->next!=NULL) CurConnection = CurConnection->next; // Находим последнюю связь
             // Создаем новую связь
-            CurConnection->next = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, UniformDistribution(-1, 1), 0, 1, ++(*CurrentInnovationNumber), 0, PrePool, CurPool, NULL); //!! Инициализация мат.ожидания [-1;1], дисперсии [-0.1;0.1]
+				CurConnection->next = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, UniformDistribution(-1, 1), 0, 1, ++(*CurrentInnovationNumber), 0, InitialDevelopSynapseProb, PrePool, CurPool, NULL); //!! Инициализация мат.ожидания [-1;1], дисперсии [-0.1;0.1]
             CurConnection=CurConnection->next;
          }
          // Детекция необходимости сдвига постсинаптического пула в следующий слой, если появилась связь между пулами одного слоя (используется для модернизированного эволюционного алгоритма)
@@ -265,7 +267,7 @@ void MutationAddConnection(TPoolNetwork* KidPoolNetwork, double AddConnectionPro
 }
 
 // Процедура мутации - добавление предикторной связи связи
-void MutationAddPredConnection(TPoolNetwork* KidPoolNetwork, double AddPredConnectionProb, double* CurrentPredInnovationNumber)
+void MutationAddPredConnection(TPoolNetwork* KidPoolNetwork, double AddPredConnectionProb, double* CurrentPredInnovationNumber, double InitialDevelopPredConProb)
 {
    if (UniformDistribution(0, 1) < AddPredConnectionProb) // Если имеет место мутация
    {
@@ -310,13 +312,13 @@ void MutationAddPredConnection(TPoolNetwork* KidPoolNetwork, double AddPredConne
 
          if (CurPool->PredConnectednessSet==NULL) // Если у постсинаптического пула еще нет входных предикторных связей (В текущий момент в переменной текущего пула ссылка на постсинаптический пул)
             // Создаем новую предикторную связь
-            CurPool->PredConnectednessSet = CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, 1, ++(*CurrentPredInnovationNumber), 0, PrePool, CurPool, NULL);
+					CurPool->PredConnectednessSet = CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, 1, ++(*CurrentPredInnovationNumber), 0, InitialDevelopPredConProb, PrePool, CurPool, NULL);
          else
          {
             CurPredConnection = CurPool->PredConnectednessSet;
             while (CurPredConnection->next!=NULL) CurPredConnection = CurPredConnection->next; // Находим последнюю связь
             // Создаем новую связь
-            CurPredConnection->next = CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, 1, ++(*CurrentPredInnovationNumber), 0, PrePool, CurPool, NULL);
+				CurPredConnection->next = CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, 1, ++(*CurrentPredInnovationNumber), 0, InitialDevelopPredConProb, PrePool, CurPool, NULL);
          }
       }
    }
@@ -570,13 +572,13 @@ void MutationInsertPool(TPoolNetwork* KidPoolNetwork, double InsertPoolProb, int
       DividedConnection->DisStep = EvolutionStep;
 
       //Добавляем входящую связь в созданный пул
-      NewPool->ConnectednessSet = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, UniformDistribution(-1, 1), 0, 1, ++(*CurrentInnovationNumber), 0, DividedConnection->PrePool, NewPool, NULL); //!! Инициализация мат.ожидания [-1;1], дисперсии [-0.1;0.1]
+      NewPool->ConnectednessSet = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, UniformDistribution(-1, 1), 0, 1, ++(*CurrentInnovationNumber), 0, 1.0, DividedConnection->PrePool, NewPool, NULL); //!! Инициализация мат.ожидания [-1;1], дисперсии [-0.1;0.1]
 
       //Добавляем входящую связь в постсинаптический пул разделяемой связи
       CurConnection = DividedConnection->PostPool->ConnectednessSet;
       while (CurConnection->next != NULL)
          CurConnection = CurConnection->next;
-      CurConnection->next = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, UniformDistribution(-1, 1), 0, 1, ++(*CurrentInnovationNumber) , 0, NewPool, DividedConnection->PostPool, NULL); //!! Инициализация мат.ожидания [-1;1], дисперсии [-0.1;0.1]
+      CurConnection->next = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, UniformDistribution(-1, 1), 0, 1, ++(*CurrentInnovationNumber) , 0, 1.0, NewPool, DividedConnection->PostPool, NULL); //!! Инициализация мат.ожидания [-1;1], дисперсии [-0.1;0.1]
    }
 }
 
@@ -607,7 +609,7 @@ void MutationPoolDuplicate(TPoolNetwork* KidPoolNetwork, double DuplicatePoolPro
       if (CurPool->Type == 1) // Если текущий пул - внутренний
       {
          // Проверяем дуплицирует ли пул (с учетом введеной поправки, уменьшающей вероятность дупликации с ростом нейросетевой структуры в эволюции)
-         bool Duplicate = (UniformDistribution(0, 1) <= DuplicatePoolProb/F_duplicate(OldPoolsQuantity, OldConnectionsQuantity, PoolStandartAmount, ConnectionStandartAmount));
+         bool Duplicate = (UniformDistribution(0, 1) < DuplicatePoolProb/F_duplicate(OldPoolsQuantity, OldConnectionsQuantity, PoolStandartAmount, ConnectionStandartAmount));
          if (Duplicate) // Если пул дуплицирует
          {
             if (CurPool->Capacity != 1) // Если в пуле не остался только один нейрон (иначе оставляем размерность = 1)
@@ -625,17 +627,17 @@ void MutationPoolDuplicate(TPoolNetwork* KidPoolNetwork, double DuplicatePoolPro
                   if (LastConnectionInPool == NULL) //Если связей еще нет
                   {
                      if (CurConnection->PrePool->ID == CurPool->ID) // Если это связь на самого себя
-                        LastPool->ConnectednessSet = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean, CurConnection->WeightVariance, CurConnection->Enabled, ++(*CurrentInnovationNumber), CurConnection->DisStep, LastPool, LastPool, NULL);
+								LastPool->ConnectednessSet = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean, CurConnection->WeightVariance, CurConnection->Enabled, ++(*CurrentInnovationNumber), CurConnection->DisStep, CurConnection->DevelopSynapseProb, LastPool, LastPool, NULL);
                      else
-                        LastPool->ConnectednessSet = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean, CurConnection->WeightVariance, CurConnection->Enabled, ++(*CurrentInnovationNumber), CurConnection->DisStep, CurConnection->PrePool, LastPool, NULL);
+                        LastPool->ConnectednessSet = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean, CurConnection->WeightVariance, CurConnection->Enabled, ++(*CurrentInnovationNumber), CurConnection->DisStep, CurConnection->DevelopSynapseProb, CurConnection->PrePool, LastPool, NULL);
                      LastConnectionInPool = LastPool->ConnectednessSet;
                   }
                   else
                   {
                      if (CurConnection->PrePool->ID == CurPool->ID) // Если это связь на самого себя
-                        LastConnectionInPool->next =  CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean, CurConnection->WeightVariance, CurConnection->Enabled, ++(*CurrentInnovationNumber), CurConnection->DisStep, LastPool, LastPool, NULL);
+                        LastConnectionInPool->next =  CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean, CurConnection->WeightVariance, CurConnection->Enabled, ++(*CurrentInnovationNumber), CurConnection->DisStep, CurConnection->DevelopSynapseProb, LastPool, LastPool, NULL);
                      else
-                        LastConnectionInPool->next =  CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean, CurConnection->WeightVariance, CurConnection->Enabled, ++(*CurrentInnovationNumber), CurConnection->DisStep, CurConnection->PrePool, LastPool, NULL);
+                        LastConnectionInPool->next =  CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean, CurConnection->WeightVariance, CurConnection->Enabled, ++(*CurrentInnovationNumber), CurConnection->DisStep, CurConnection->DevelopSynapseProb, CurConnection->PrePool, LastPool, NULL);
                      LastConnectionInPool = LastConnectionInPool->next;
                   }
                }
@@ -656,7 +658,7 @@ void MutationPoolDuplicate(TPoolNetwork* KidPoolNetwork, double DuplicatePoolPro
                         {
                            LastConnectionInPool = CurConnection;
                            while (LastConnectionInPool->next!=NULL) LastConnectionInPool = LastConnectionInPool->next; // Находим последнюю связь
-                           LastConnectionInPool->next = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean/2.0F, CurConnection->WeightVariance, CurConnection->Enabled, ++*CurrentInnovationNumber, CurConnection->DisStep, LastPool, CurConnection->PostPool, NULL);
+                           LastConnectionInPool->next = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean/2.0F, CurConnection->WeightVariance, CurConnection->Enabled, ++*CurrentInnovationNumber, CurConnection->DisStep, CurConnection->DevelopSynapseProb, LastPool, CurConnection->PostPool, NULL);
                            CurConnection->WeightMean = CurConnection->WeightMean/2.0F; // Выходные связи дуплицирующего нейрона мы делим пополам между новым и дуплицирующим
                         }
                      CurConnection = CurConnection->next;
@@ -675,17 +677,17 @@ void MutationPoolDuplicate(TPoolNetwork* KidPoolNetwork, double DuplicatePoolPro
                   if (LastPredConnectionInPool == NULL) //Если связей еще нет
                   {
                      if (CurPredConnection->PrePool->ID == CurPool->ID)
-                        LastPool->PredConnectednessSet = CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, CurPredConnection->Enabled, ++(*CurrentPredInnovationNumber), CurPredConnection->DisStep, LastPool, LastPool, NULL);
+								LastPool->PredConnectednessSet = CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, CurPredConnection->Enabled, ++(*CurrentPredInnovationNumber), CurPredConnection->DisStep, CurPredConnection->DevelopPredConProb, LastPool, LastPool, NULL);
                      else
-                        LastPool->PredConnectednessSet = CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, CurPredConnection->Enabled, ++*CurrentPredInnovationNumber, CurPredConnection->DisStep, CurPredConnection->PrePool, LastPool, NULL);
+                        LastPool->PredConnectednessSet = CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, CurPredConnection->Enabled, ++*CurrentPredInnovationNumber, CurPredConnection->DisStep, CurPredConnection->DevelopPredConProb, CurPredConnection->PrePool, LastPool, NULL);
                      LastPredConnectionInPool = LastPool->PredConnectednessSet;
                   }
                   else
                   {
                      if (CurPredConnection->PrePool->ID == CurPool->ID)
-                        LastPredConnectionInPool->next =  CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, CurPredConnection->Enabled, ++*CurrentPredInnovationNumber, CurPredConnection->DisStep, LastPool, LastPool, NULL);
+                        LastPredConnectionInPool->next =  CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, CurPredConnection->Enabled, ++*CurrentPredInnovationNumber, CurPredConnection->DisStep, CurPredConnection->DevelopPredConProb, LastPool, LastPool, NULL);
                      else
-                        LastPredConnectionInPool->next =  CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, CurPredConnection->Enabled, ++*CurrentPredInnovationNumber, CurPredConnection->DisStep, CurPredConnection->PrePool, LastPool, NULL);
+                        LastPredConnectionInPool->next =  CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, CurPredConnection->Enabled, ++*CurrentPredInnovationNumber, CurPredConnection->DisStep, CurPredConnection->DevelopPredConProb, CurPredConnection->PrePool, LastPool, NULL);
                      LastPredConnectionInPool = LastPredConnectionInPool->next;
                   }
                }
@@ -706,7 +708,7 @@ void MutationPoolDuplicate(TPoolNetwork* KidPoolNetwork, double DuplicatePoolPro
                         {
                            LastPredConnectionInPool = CurPredConnection;
                            while (LastPredConnectionInPool->next!=NULL) LastPredConnectionInPool = LastPredConnectionInPool->next; // Находим последнюю связь
-                           LastPredConnectionInPool->next = CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, CurPredConnection->Enabled, ++*CurrentPredInnovationNumber, CurPredConnection->DisStep, LastPool, CurPredConnection->PostPool, NULL);
+                           LastPredConnectionInPool->next = CreatePoolPredConnection(++KidPoolNetwork->PredConnectionQuantity, CurPredConnection->Enabled, ++*CurrentPredInnovationNumber, CurPredConnection->DisStep, CurPredConnection->DevelopPredConProb, LastPool, CurPredConnection->PostPool, NULL);
                         }
                      CurPredConnection = CurPredConnection->next;
                   }
@@ -718,6 +720,36 @@ void MutationPoolDuplicate(TPoolNetwork* KidPoolNetwork, double DuplicatePoolPro
       CurPool=CurPool->next;
 
    } while ( (CurPool!=NULL)&&(CurPool->ID<=OldPoolsQuantity) );
+}
+
+// Процедура мутации вероятности развития синапса по связи между пулами
+void MutationDevelopSynapseProb(TPoolNetwork* KidPoolNetwork, double MutDevelopSynapseProbProb, double MutDevelopSynapseProbDisp){
+	TNeuralPool* CurrentPool = KidPoolNetwork->PoolsStructure;
+	while (NULL != CurrentPool){
+		TPoolConnection* CurrentConnection = CurrentPool->ConnectednessSet;
+		while (NULL != CurrentConnection){
+			if (UniformDistribution(0, 1) < MutDevelopSynapseProbProb)
+				// Важно, чтобы вероятность была между нулем и единицей
+				CurrentConnection->DevelopSynapseProb = min(1.0, max(0.0, CurrentConnection->DevelopSynapseProb + UniformDistribution(-MutDevelopSynapseProbDisp, MutDevelopSynapseProbDisp)));
+			CurrentConnection = CurrentConnection->next;
+		}
+		CurrentPool = CurrentPool->next;
+	}
+}
+
+// Процедура мутации вероятности развития предикторной связи по предикторной связи между пулами
+void MutationDevelopPredConProb(TPoolNetwork* KidPoolNetwork, double MutDevelopPredConProbProb, double MutDevelopPredConProbDisp){
+	TNeuralPool* CurrentPool = KidPoolNetwork->PoolsStructure;
+	while (NULL != CurrentPool){
+		TPoolPredConnection* CurrentPredConnection = CurrentPool->PredConnectednessSet;
+		while (NULL != CurrentPredConnection){
+			if (UniformDistribution(0, 1) < MutDevelopPredConProbProb)
+				// Важно, чтобы вероятность была между нулем и единицей
+				CurrentPredConnection->DevelopPredConProb = min(1.0, max(0.0, CurrentPredConnection->DevelopPredConProb + UniformDistribution(-MutDevelopPredConProbDisp, MutDevelopPredConProbDisp)));
+			CurrentPredConnection = CurrentPredConnection->next;
+		}
+		CurrentPool = CurrentPool->next;
+	}
 }
 
 // Процедура генерации потомка от двух родителей
@@ -789,7 +821,7 @@ void ComposeOffspringFromParents(TPoolNetwork* KidPoolNetwork, TPoolNetwork* Fir
 }
 
 // Процедура генерации одного потомка
-void GenerateOffspring(TPoolNetwork* KidPoolNetwork, TPoolNetwork* FirstParentNetwork, TPoolNetwork* SecondParentNetwork, int EvolutionStep, TMutationSettings* Settings, bool EvolutionMode, double* CurrentInnovationNumber, double* CurrentPredInnovationNumber)
+void GenerateOffspring(TPoolNetwork* KidPoolNetwork, TPoolNetwork* FirstParentNetwork, TPoolNetwork* SecondParentNetwork, int EvolutionStep, TMutationSettings* Settings, bool EvolutionMode, double* CurrentInnovationNumber, double* CurrentPredInnovationNumber, double InitialDevelopSynapseProb, double InitialDevelopPredConProb)
 {
    ComposeOffspringFromParents(KidPoolNetwork, FirstParentNetwork, SecondParentNetwork); // Создаем первиченую сеть потомка после скрещивания родителей
 
@@ -803,9 +835,9 @@ void GenerateOffspring(TPoolNetwork* KidPoolNetwork, TPoolNetwork* FirstParentNe
 
    MutationEnDisConnection(KidPoolNetwork, Settings->EnConProb, Settings->DisConProb, EvolutionStep); // Мутация - включение/выключение связей
 
-   MutationAddConnection(KidPoolNetwork, Settings->AddConnectionProb, EvolutionMode, CurrentInnovationNumber);
+	MutationAddConnection(KidPoolNetwork, Settings->AddConnectionProb, EvolutionMode, CurrentInnovationNumber, InitialDevelopSynapseProb);
 
-   MutationAddPredConnection(KidPoolNetwork, Settings->AddPredConnectionProb, CurrentPredInnovationNumber);
+	MutationAddPredConnection(KidPoolNetwork, Settings->AddPredConnectionProb, CurrentPredInnovationNumber, InitialDevelopPredConProb);
 
    MutationDeletePoolConnection(KidPoolNetwork, Settings->DeleteConnectionProb);
 
@@ -813,6 +845,9 @@ void GenerateOffspring(TPoolNetwork* KidPoolNetwork, TPoolNetwork* FirstParentNe
 
    MutationConWeight(KidPoolNetwork, Settings->MutWeightProbability, Settings->MutWeightMeanDisp, Settings->MutWeightDispDisp); // Мутация весов связкй
 
+	MutationDevelopSynapseProb(KidPoolNetwork, Settings->MutDevelopConProbProb, Settings->MutDevelopConProbDisp);
+
+	MutationDevelopPredConProb(KidPoolNetwork, Settings->MutDevelopConProbProb, Settings->MutDevelopConProbDisp);
 }
 
 //Процедура получения номера агента, используемая в рулеточном алгоритме
@@ -860,7 +895,7 @@ double RewardPenalty(TPoolNetwork* PoolNetwork, int PenaltyRewardLimit)
 }
 
 // Процедура генерации нового поколения и замены старого на новое
-void GenerateNextPopulation(TAgentGenomePopulation* AgentGenomePopulation, TMutationSettings* MutationSettings, int EvolutionStep, bool EvolutionMode, bool RewardMode, double* CurrentInnovationNumber, double* CurrentPredInnovationNumber)
+void GenerateNextPopulation(TAgentGenomePopulation* AgentGenomePopulation, TMutationSettings* MutationSettings, int EvolutionStep, bool EvolutionMode, bool RewardMode, double* CurrentInnovationNumber, double* CurrentPredInnovationNumber, double InitialDevelopSynapseProb, double InitialDevelopPredConProb)
 {
    //double PopulationReward[AgentGenomePopulation->PopulationAgentQuantity]; // Массив со всеми наградами популяци
    double* PopulationReward = new double[AgentGenomePopulation->PopulationAgentQuantity]; // Массив со всеми наградами популяци
@@ -917,7 +952,7 @@ void GenerateNextPopulation(TAgentGenomePopulation* AgentGenomePopulation, TMuta
          SecondParentAgent = tmp;
       }
       NewGenomePopulation->AgentGenome[i] = CreatePoolNetwork(); // Инициализируем агента
-      GenerateOffspring(NewGenomePopulation->AgentGenome[i], AgentGenomePopulation->AgentGenome[FirstParentAgent], AgentGenomePopulation->AgentGenome[SecondParentAgent], EvolutionStep, MutationSettings, EvolutionMode, CurrentInnovationNumber, CurrentPredInnovationNumber);
+		GenerateOffspring(NewGenomePopulation->AgentGenome[i], AgentGenomePopulation->AgentGenome[FirstParentAgent], AgentGenomePopulation->AgentGenome[SecondParentAgent], EvolutionStep, MutationSettings, EvolutionMode, CurrentInnovationNumber, CurrentPredInnovationNumber, InitialDevelopSynapseProb, InitialDevelopPredConProb);
       NewGenomePopulation->AgentGenome[i]->Parents[0] = FirstParentAgent;
       NewGenomePopulation->AgentGenome[i]->Parents[1] = SecondParentAgent;
    }

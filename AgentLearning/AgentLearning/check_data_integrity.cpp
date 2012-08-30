@@ -147,14 +147,17 @@ bool check_integrity_of_pool_network_record(FILE* hNetworkFile, int EnvironmentR
       err_sign = fscanf(hNetworkFile, "%s", StrFromFile); // Считываем поколение выключения
       if (read_err_analysis(err_sign)) return 1;
       int ConnectionDisStep = atoi(StrFromFile);
+		err_sign = fscanf(hNetworkFile, "%s", StrFromFile); // Считываем вероятность развития связи
+      if (read_err_analysis(err_sign)) return 1;
+      double DevelopConProb = atof(StrFromFile);
       err_sign = fscanf(hNetworkFile, "%s", StrFromFile); // Считываем номер инновации
       if (read_err_analysis(err_sign)) return 1;
       double ConnectionInnNumber = atof(StrFromFile);
 
       if (CurrentPoolConnection != NULL) // Если уже есть входящие синапсы у нейрона
-         CurrentPoolConnection->next = CreatePoolConnection(PoolNetwork->ConnectionQuantity, WeightMean, WeightDisp, ConnectionEnabled, ConnectionInnNumber, ConnectionDisStep, PrePool, CurrentPool, NULL);
+         CurrentPoolConnection->next = CreatePoolConnection(PoolNetwork->ConnectionQuantity, WeightMean, WeightDisp, ConnectionEnabled, ConnectionInnNumber, ConnectionDisStep, DevelopConProb, PrePool, CurrentPool, NULL);
       else
-         CurrentPool->ConnectednessSet = CreatePoolConnection(PoolNetwork->ConnectionQuantity, WeightMean, WeightDisp, ConnectionEnabled, ConnectionInnNumber, ConnectionDisStep, PrePool, CurrentPool, NULL);
+			CurrentPool->ConnectednessSet = CreatePoolConnection(PoolNetwork->ConnectionQuantity, WeightMean, WeightDisp, ConnectionEnabled, ConnectionInnNumber, ConnectionDisStep, DevelopConProb, PrePool, CurrentPool, NULL);
 
       err_sign = fscanf(hNetworkFile, "%s", StrFromFile);
       if (read_err_analysis(err_sign)) return 1;
@@ -184,14 +187,17 @@ bool check_integrity_of_pool_network_record(FILE* hNetworkFile, int EnvironmentR
       err_sign = fscanf(hNetworkFile, "%s", StrFromFile); // Считываем поколение выключения
       if (read_err_analysis(err_sign)) return 1;
       int PredConnectionDisStep = atoi(StrFromFile);
+		err_sign = fscanf(hNetworkFile, "%s", StrFromFile); // Считываем вероятность развития связи
+      if (read_err_analysis(err_sign)) return 1;
+      double DevelopPredConProb = atof(StrFromFile);
       err_sign = fscanf(hNetworkFile, "%s", StrFromFile); // Считываем номер инновации
       if (read_err_analysis(err_sign)) return 1;
       double PredConnectionInnNumber = atof(StrFromFile);
 
       if (CurrentPoolPredConnection != NULL) // Если уже есть входящие предикторные связи у нейрона
-         CurrentPoolPredConnection->next = CreatePoolPredConnection(PoolNetwork->PredConnectionQuantity, PredConnectionEnabled, PredConnectionInnNumber, PredConnectionDisStep, PrePool, CurrentPool, NULL);
+			CurrentPoolPredConnection->next = CreatePoolPredConnection(PoolNetwork->PredConnectionQuantity, PredConnectionEnabled, PredConnectionInnNumber, PredConnectionDisStep, DevelopPredConProb, PrePool, CurrentPool, NULL);
       else
-         CurrentPool->PredConnectednessSet = CreatePoolPredConnection(PoolNetwork->PredConnectionQuantity, PredConnectionEnabled, PredConnectionInnNumber, PredConnectionDisStep, PrePool, CurrentPool, NULL);
+			CurrentPool->PredConnectednessSet = CreatePoolPredConnection(PoolNetwork->PredConnectionQuantity, PredConnectionEnabled, PredConnectionInnNumber, PredConnectionDisStep, DevelopPredConProb, PrePool, CurrentPool, NULL);
 
       err_sign = fscanf(hNetworkFile, "%s", StrFromFile);
       if (read_err_analysis(err_sign)) return 1;

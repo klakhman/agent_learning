@@ -65,11 +65,13 @@ void FillSettingsFromFile(const char SettingsFilename[], TTimeSettings* TimeSett
       if (!strcmp(tmp_str,"PoolStandartAmount")) { fscanf(hSettingsFile, "%s", tmp_str); MutationSettings->PoolStandartAmount = atoi(tmp_str); }
       if (!strcmp(tmp_str,"ConnectionStandartAmount")) { fscanf(hSettingsFile, "%s", tmp_str); MutationSettings->ConnectionStandartAmount = atoi(tmp_str); }
       if (!strcmp(tmp_str,"PenaltyRewardLimit")) { fscanf(hSettingsFile, "%s", tmp_str); MutationSettings->PenaltyRewardLimit = atoi(tmp_str); }
+		if (!strcmp(tmp_str,"MutDevelopConProbProb")) { fscanf(hSettingsFile, "%s", tmp_str); MutationSettings->MutDevelopConProbProb = atof(tmp_str); }
+		if (!strcmp(tmp_str,"MutDevelopConProbDisp")) { fscanf(hSettingsFile, "%s", tmp_str); MutationSettings->MutDevelopConProbDisp = atof(tmp_str); }
 
       // Параметры первичного системогенеза
       if (!strcmp(tmp_str,"InitialPoolCapacity")) { fscanf(hSettingsFile, "%s", tmp_str); PrimarySystemogenesisSettings->InitialPoolCapacity = atoi(tmp_str); }
-      if (!strcmp(tmp_str,"DevelopSynapseProbability")) { fscanf(hSettingsFile, "%s", tmp_str); PrimarySystemogenesisSettings->DevelopSynapseProbability = atof(tmp_str); }
-      if (!strcmp(tmp_str,"DevelopPredConnectionProbability")) { fscanf(hSettingsFile, "%s", tmp_str); PrimarySystemogenesisSettings->DevelopPredConnectionProbability = atof(tmp_str); }
+      if (!strcmp(tmp_str,"InitialDevelopSynapseProbability")) { fscanf(hSettingsFile, "%s", tmp_str); PrimarySystemogenesisSettings->InitialDevelopSynapseProbability = atof(tmp_str); }
+		if (!strcmp(tmp_str,"InitialDevelopPredConnectionProbability")) { fscanf(hSettingsFile, "%s", tmp_str); PrimarySystemogenesisSettings->InitialDevelopPredConnectionProbability = atof(tmp_str); }
       if (!strcmp(tmp_str,"PrimarySystemogenesisTime")) { fscanf(hSettingsFile, "%s", tmp_str); PrimarySystemogenesisSettings->PrimarySystemogenesisTime = atoi(tmp_str); }
       if (!strcmp(tmp_str,"SpontaneousActivityProb")) { fscanf(hSettingsFile, "%s", tmp_str); PrimarySystemogenesisSettings->SpontaneousActivityProb = atof(tmp_str); }
       if (!strcmp(tmp_str,"ActiveNeuronsPercent")) { fscanf(hSettingsFile, "%s", tmp_str); PrimarySystemogenesisSettings->ActiveNeuronsPercent = atof(tmp_str); }
