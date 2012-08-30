@@ -658,8 +658,8 @@ void MutationPoolDuplicate(TPoolNetwork* KidPoolNetwork, double DuplicatePoolPro
                         {
                            LastConnectionInPool = CurConnection;
                            while (LastConnectionInPool->next!=NULL) LastConnectionInPool = LastConnectionInPool->next; // Находим последнюю связь
-                           LastConnectionInPool->next = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean/2.0F, CurConnection->WeightVariance, CurConnection->Enabled, ++*CurrentInnovationNumber, CurConnection->DisStep, CurConnection->DevelopSynapseProb, LastPool, CurConnection->PostPool, NULL);
-                           CurConnection->WeightMean = CurConnection->WeightMean/2.0F; // Выходные связи дуплицирующего нейрона мы делим пополам между новым и дуплицирующим
+                           LastConnectionInPool->next = CreatePoolConnection(++KidPoolNetwork->ConnectionQuantity, CurConnection->WeightMean/2.0, CurConnection->WeightVariance, CurConnection->Enabled, ++*CurrentInnovationNumber, CurConnection->DisStep, CurConnection->DevelopSynapseProb, LastPool, CurConnection->PostPool, NULL);
+                           CurConnection->WeightMean = CurConnection->WeightMean/2.0; // Выходные связи дуплицирующего нейрона мы делим пополам между новым и дуплицирующим
                         }
                      CurConnection = CurConnection->next;
                   }
